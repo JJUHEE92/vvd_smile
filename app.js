@@ -412,51 +412,74 @@ function retryCamera() {
 
 // 100점 달성 시 축하 효과 함수
 function triggerCelebration() {
-    // 풍선과 꽃바람 효과 생성
-    createBalloonAndFlowerEffect();
+    // 폭죽 터지는 효과 생성
+    createFireworksEffect();
     
     // 축하 사운드 재생
     playCelebrationSound();
     
-    // 3초 후 효과 정리 (성능 및 메모리 관리)
+    // 5초 후 효과 정리 (폭죽 효과를 더 오래 감상)
     setTimeout(() => {
         clearCelebrationEffects(); // 축하 효과 요소들 제거
-    }, 3000);
+    }, 5000);
 }
 
-// 풍선과 꽃바람 효과 생성 함수
-function createBalloonAndFlowerEffect() {
-    const effectCount = 60; // 생성할 효과 요소 개수
-    const balloons = ['🎈', '🎁', '✨']; // 풍선 이모지 배열
-    const flowers = ['🌺', '🌻', '🌹', '💐']; // 꽃 이모지 배열
+// 폭죽 터지는 효과 생성 함수
+function createFireworksEffect() {
+    const effectCount = 80; // 생성할 효과 요소 개수 (더 많이)
+    const fireworks = ['✨', '💥', '🎆', '🎇', '⭐', '💫', '🌟']; // 폭죽 이모지 배열
+    const sparkles = ['✨', '💫', '⭐', '🌟', '💥']; // 반짝이 이모지 배열
     
-    // 60개의 효과 요소를 순차적으로 생성
+    // 폭죽 효과 요소들을 순차적으로 생성
     for (let i = 0; i < effectCount; i++) {
         setTimeout(() => { // 각 요소를 시간차를 두고 생성
             const element = document.createElement('div'); // 새로운 div 요소 생성
             
-            // 풍선과 꽃을 랜덤하게 선택
-            if (i % 3 === 0) { // 3번째마다 풍선
-                element.innerHTML = balloons[Math.floor(Math.random() * balloons.length)]; // 랜덤 풍선 선택
-                element.className = 'celebration-balloon'; // 풍선 클래스 적용
-            } else { // 나머지는 꽃
-                element.innerHTML = flowers[Math.floor(Math.random() * flowers.length)]; // 랜덤 꽃 선택
-                element.className = 'celebration-flower'; // 꽃 클래스 적용
+            // 폭죽과 반짝이를 랜덤하게 선택
+            if (i % 4 === 0 || i % 4 === 1) { // 절반은 폭죽
+                element.innerHTML = fireworks[Math.floor(Math.random() * fireworks.length)]; // 랜덤 폭죽 선택
+                element.className = 'celebration-firework'; // 폭죽 클래스 적용
+            } else { // 나머지는 반짝이
+                element.innerHTML = sparkles[Math.floor(Math.random() * sparkles.length)]; // 랜덤 반짝이 선택
+                element.className = 'celebration-sparkle'; // 반짝이 클래스 적용
             }
             
             // 요소 스타일 설정
             element.style.position = 'fixed'; // 화면에 고정 위치
-            element.style.left = Math.random() * window.innerWidth + 'px'; // 랜덤 X 위치
-            element.style.top = '-50px'; // 화면 위쪽에서 시작
-            element.style.fontSize = (15 + Math.random() * 10) + 'px'; // 랜덤 크기 (15~25px)
+            
+            // 폭죽 터지는 위치 (여러 곳에서 동시에)
+            const explosionPoints = [
+                { x: 0.2, y: 0.3 }, { x: 0.8, y: 0.3 }, // 상단 좌우
+                { x: 0.5, y: 0.2 }, // 중앙 상단
+                { x: 0.1, y: 0.6 }, { x: 0.9, y: 0.6 }, // 중간 좌우
+                { x: 0.3, y: 0.7 }, { x: 0.7, y: 0.7 }, // 하단 좌우
+            ];
+            
+            const explosionPoint = explosionPoints[i % explosionPoints.length];
+            const centerX = window.innerWidth * explosionPoint.x;
+            const centerY = window.innerHeight * explosionPoint.y;
+            
+            // 중심점에서 퍼져나가는 효과
+            const angle = (Math.random() * 360) * (Math.PI / 180);
+            const distance = 50 + Math.random() * 200; // 터지는 반지름
+            const startX = centerX;
+            const startY = centerY;
+            const endX = centerX + Math.cos(angle) * distance;
+            const endY = centerY + Math.sin(angle) * distance;
+            
+            element.style.left = startX + 'px';
+            element.style.top = startY + 'px';
+            element.style.fontSize = (20 + Math.random() * 15) + 'px'; // 랜덤 크기 (20~35px)
             element.style.zIndex = '9999'; // 최상위 레이어
             element.style.pointerEvents = 'none'; // 마우스 이벤트 차단
             
-            // 풍선은 위로 올라가고, 꽃은 아래로 떨어짐
-            if (element.className === 'celebration-balloon') {
-                element.style.animation = 'balloon-float 4s ease-out forwards'; // 풍선 애니메이션
+            // 폭죽은 중심에서 사방으로 터짐, 반짝이는 랜덤하게 반짝임
+            if (element.className === 'celebration-firework') {
+                element.style.animation = `firework-explode 2s ease-out forwards`; // 폭죽 애니메이션
+                element.style.setProperty('--end-x', endX + 'px');
+                element.style.setProperty('--end-y', endY + 'px');
             } else {
-                element.style.animation = 'flower-fall 3s ease-out forwards'; // 꽃 애니메이션
+                element.style.animation = 'sparkle-twinkle 1.5s ease-in-out forwards'; // 반짝이 애니메이션
             }
             
             // CSS 애니메이션 추가 (동적 스타일 생성)
@@ -464,23 +487,39 @@ function createBalloonAndFlowerEffect() {
                 const style = document.createElement('style'); // 새로운 style 요소 생성
                 style.id = 'celebration-style'; // 스타일 ID 설정
                 style.textContent = `
-                    @keyframes balloon-float {
+                    @keyframes firework-explode {
                         0% {
-                            transform: translateY(0px) rotate(0deg);
+                            transform: translate(0, 0) scale(0.3);
+                            opacity: 1;
+                        }
+                        30% {
+                            transform: translate(0, 0) scale(1.2);
                             opacity: 1;
                         }
                         100% {
-                            transform: translateY(-${window.innerHeight + 200}px) rotate(360deg);
+                            transform: translate(var(--end-x, 200px), var(--end-y, 200px)) scale(0.5);
                             opacity: 0;
                         }
                     }
-                    @keyframes flower-fall {
+                    @keyframes sparkle-twinkle {
                         0% {
-                            transform: translateY(0px) rotate(0deg);
+                            transform: rotate(0deg) scale(0);
+                            opacity: 0;
+                        }
+                        25% {
+                            transform: rotate(90deg) scale(1.5);
+                            opacity: 1;
+                        }
+                        50% {
+                            transform: rotate(180deg) scale(1);
+                            opacity: 0.8;
+                        }
+                        75% {
+                            transform: rotate(270deg) scale(1.8);
                             opacity: 1;
                         }
                         100% {
-                            transform: translateY(${window.innerHeight + 100}px) rotate(720deg);
+                            transform: rotate(360deg) scale(0);
                             opacity: 0;
                         }
                     }
@@ -490,89 +529,311 @@ function createBalloonAndFlowerEffect() {
             
             document.body.appendChild(element); // 요소를 body에 추가
             
-            // 4초 후 자동 제거 (메모리 누수 방지)
+            // 3초 후 자동 제거 (메모리 누수 방지)
             setTimeout(() => {
                 if (element.parentNode) { // 요소가 DOM에 있으면
                     element.parentNode.removeChild(element); // 요소 제거
                 }
-            }, 4000);
-        }, i * 40); // 조금 더 빠르게 순차적으로 생성 (30ms 간격)
+            }, 3000);
+        }, i * 25); // 폭죽은 더 빠르게 연속으로 터짐 (25ms 간격)
     }
 }
 
-// 축하 사운드 재생 함수 (ddd sound)
+// 축하 사운드 재생 함수 (실제 오디오 파일 사용)
 function playCelebrationSound() {
     try {
-        // 다양한 파일명 시도 (사운드 파일 배열)
-        const audioSources = ['ddd.wav']; // 재생할 오디오 파일 목록
-        let audio = null; // 오디오 객체 변수
+        // 박수 소리 재생 (여러 번)
+        playRealApplauseSound();
         
-        // 첫 번째 사용 가능한 파일 찾기
-        for (let src of audioSources) { // 각 오디오 소스에 대해
-            try {
-                audio = new Audio(src); // 새로운 Audio 객체 생성
-                break; // 성공하면 반복 종료
-            } catch (e) {
-                console.log(`${src} 파일을 찾을 수 없습니다.`); // 파일 없음 로그
-            }
-        }
+        // 환호 소리 재생
+        playRealCheersSound();
         
-        if (!audio) { // 사용 가능한 오디오 파일이 없으면
-            console.log('축하 사운드 파일을 찾을 수 없습니다.'); // 파일 없음 로그
-            return; // 함수 종료
-        }
-        
-        audio.volume = 1.0; // 초기 볼륨 조절 (0.0 ~ 1.0)
-        
-        // 오디오 로드 완료 후 재생
-        audio.addEventListener('canplaythrough', () => {
-            console.log('오디오 로드 완료, 재생 시작'); // 로드 완료 로그
-        });
-        
-        audio.addEventListener('error', (e) => {
-            console.error('오디오 로드 오류:', e); // 오디오 로드 에러 로그
-        });
-        
-        // 사용자 인터랙션이 있었으므로 재생 시도
-        const playPromise = audio.play(); // 오디오 재생 시도
-        
-        if (playPromise !== undefined) { // 재생 Promise가 존재하면
-            playPromise
-                .then(() => {
-                    console.log('축하 사운드 재생 성공!'); // 재생 성공 로그
-                    
-                    // 2초 후부터 볼륨을 빠르게 줄이기 시작 (페이드 아웃)
-                    setTimeout(() => {
-                        const fadeOutInterval = setInterval(() => { // 페이드 아웃 인터벌 설정
-                            if (audio.volume > 0.05) { // 볼륨이 0.05보다 크면
-                                audio.volume = Math.max(0, audio.volume - 0.15); // 볼륨을 더 빠르게 줄임
-                            } else {
-                                audio.volume = 0; // 완전히 무음
-                                clearInterval(fadeOutInterval); // 인터벌 정리
-                            }
-                        }, 80); // 0.08초마다 볼륨 조절 (더 빠르게)
-                    }, 2000); // 2초 후 시작
-                    
-                    // 4초 후 완전히 정지
-                    setTimeout(() => {
-                        audio.pause(); // 오디오 일시정지
-                        audio.currentTime = 0; // 재생 위치를 처음으로 되돌림
-                    }, 4000);
-                })
-                .catch(error => {
-                    console.error('사운드 재생 실패:', error); // 재생 실패 로그
-                    console.log('브라우저에서 자동 재생을 차단했을 수 있습니다.'); // 자동 재생 차단 안내
-                });
-        }
+        console.log('🎉 실제 오디오 파일로 축하 소리 재생!');
         
     } catch (error) {
-        console.error('오디오 재생 오류:', error); // 오디오 재생 에러 로그
+        console.error('축하 사운드 재생 오류:', error);
     }
 }
+
+// 실제 박수 파일 재생 함수
+function playRealApplauseSound() {
+    try {
+        // 박수 소리를 여러 번 재생 (겹치는 효과)
+        const applauseTimes = [0, 500, 1000, 1500, 2000]; // 0.5초 간격으로 5번
+        
+        applauseTimes.forEach((delay, index) => {
+            setTimeout(() => {
+                const audio = new Audio('assets/clap.MP3');
+                audio.volume = 0.8 - (index * 0.1); // 점점 작아지게
+                audio.play().catch(error => {
+                    console.log('박수 소리 재생 실패:', error);
+                });
+            }, delay);
+        });
+        
+        console.log('👏 실제 박수 파일 재생!');
+        
+    } catch (error) {
+        console.error('박수 파일 재생 오류:', error);
+    }
+}
+
+// 실제 환호 파일 재생 함수
+function playRealCheersSound() {
+    try {
+        // 여러 축하 소리를 연속으로 재생
+        const cheerSounds = [
+            { file: 'assets/con_01.mp3', delay: 0, volume: 0.7 },
+            { file: 'assets/d5_joy.wav', delay: 800, volume: 0.6 },
+            { file: 'assets/suc_01.wav', delay: 1500, volume: 0.8 },
+            { file: 'assets/con_02.mp3', delay: 2200, volume: 0.5 },
+            { file: 'assets/suc_02.mp3', delay: 3000, volume: 0.7 }
+        ];
+        
+        cheerSounds.forEach(sound => {
+            setTimeout(() => {
+                const audio = new Audio(sound.file);
+                audio.volume = sound.volume;
+                audio.play().catch(error => {
+                    console.log(`환호 소리 재생 실패 (${sound.file}):`, error);
+                });
+            }, sound.delay);
+        });
+        
+        console.log('🎉 실제 환호 파일들 재생!');
+        
+    } catch (error) {
+        console.error('환호 파일 재생 오류:', error);
+    }
+}
+
+// 기존 Web Audio API 함수들 (사용 안 함)
+// 박수 소리 재생
+function playApplauseSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 더 현실적인 박수 소리 패턴 (여러 사람이 박수치는 효과)
+        const applausePattern = [
+            // 첫 번째 물결
+            { delay: 0, duration: 0.08, pitch: 800 },
+            { delay: 0.05, duration: 0.06, pitch: 1200 },
+            { delay: 0.12, duration: 0.1, pitch: 900 },
+            { delay: 0.18, duration: 0.07, pitch: 1100 },
+            { delay: 0.25, duration: 0.09, pitch: 850 },
+            
+            // 두 번째 물결 (더 강하게)
+            { delay: 0.4, duration: 0.12, pitch: 950 },
+            { delay: 0.45, duration: 0.08, pitch: 1300 },
+            { delay: 0.52, duration: 0.1, pitch: 800 },
+            { delay: 0.6, duration: 0.11, pitch: 1000 },
+            { delay: 0.68, duration: 0.09, pitch: 1150 },
+            
+            // 세 번째 물결 (절정)
+            { delay: 0.85, duration: 0.15, pitch: 900 },
+            { delay: 0.9, duration: 0.12, pitch: 1200 },
+            { delay: 0.98, duration: 0.14, pitch: 850 },
+            { delay: 1.05, duration: 0.1, pitch: 1050 },
+            { delay: 1.12, duration: 0.13, pitch: 950 },
+            { delay: 1.2, duration: 0.11, pitch: 1100 },
+            
+            // 마무리 (점점 줄어드는)
+            { delay: 1.4, duration: 0.2, pitch: 800 },
+            { delay: 1.5, duration: 0.15, pitch: 1000 },
+            { delay: 1.65, duration: 0.18, pitch: 900 },
+        ];
+        
+        applausePattern.forEach((clap) => {
+            setTimeout(() => {
+                // 화이트 노이즈로 박수 소리 시뮬레이션
+                const bufferSize = audioContext.sampleRate * clap.duration;
+                const buffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+                
+                for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                    const channelData = buffer.getChannelData(channel);
+                    for (let i = 0; i < bufferSize; i++) {
+                        // 노이즈 생성 (박수 소리 효과)
+                        channelData[i] = (Math.random() * 2 - 1) * 0.3;
+                    }
+                }
+                
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                // 필터로 박수 소리처럼 만들기 (각기 다른 음높이)
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(clap.pitch, audioContext.currentTime);
+                filter.Q.setValueAtTime(2, audioContext.currentTime); // 더 날카로운 필터
+                
+                source.buffer = buffer;
+                
+                // 볼륨 조절 (빠르게 커졌다 작아지기)
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + clap.duration);
+                
+                // 오디오 노드 연결
+                source.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                source.start();
+                
+            }, clap.delay * 1000);
+        });
+        
+        console.log('👏 박수 소리 재생!');
+        
+    } catch (error) {
+        console.error('박수 소리 재생 실패:', error);
+    }
+}
+
+// 추가 박수 효과 (더 강력하고 지속적인)
+function playExtraApplause() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 더 많고 강력한 박수 패턴
+        const extraApplausePattern = [
+            // 초기 폭발적인 박수
+            { delay: 0.8, duration: 0.3, pitch: 1000, volume: 0.6 },
+            { delay: 0.85, duration: 0.25, pitch: 1200, volume: 0.5 },
+            { delay: 0.9, duration: 0.3, pitch: 800, volume: 0.55 },
+            { delay: 0.95, duration: 0.28, pitch: 1100, volume: 0.45 },
+            { delay: 1.0, duration: 0.35, pitch: 900, volume: 0.6 },
+            
+            // 지속적인 박수 (더 오래)
+            { delay: 1.5, duration: 0.4, pitch: 950, volume: 0.7 },
+            { delay: 1.6, duration: 0.35, pitch: 1150, volume: 0.6 },
+            { delay: 1.7, duration: 0.45, pitch: 850, volume: 0.65 },
+            { delay: 1.8, duration: 0.4, pitch: 1050, volume: 0.55 },
+            { delay: 1.9, duration: 0.5, pitch: 950, volume: 0.7 },
+            { delay: 2.0, duration: 0.45, pitch: 1100, volume: 0.6 },
+            
+            // 피날레 박수
+            { delay: 2.5, duration: 0.6, pitch: 900, volume: 0.8 },
+            { delay: 2.6, duration: 0.55, pitch: 1200, volume: 0.75 },
+            { delay: 2.7, duration: 0.7, pitch: 800, volume: 0.8 },
+            { delay: 2.8, duration: 0.65, pitch: 1000, volume: 0.7 },
+        ];
+        
+        extraApplausePattern.forEach((clap) => {
+            setTimeout(() => {
+                const bufferSize = audioContext.sampleRate * clap.duration;
+                const buffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+                
+                for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                    const channelData = buffer.getChannelData(channel);
+                    for (let i = 0; i < bufferSize; i++) {
+                        // 더 강력한 노이즈 (박수 소리)
+                        channelData[i] = (Math.random() * 2 - 1) * 0.6;
+                    }
+                }
+                
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(clap.pitch, audioContext.currentTime);
+                filter.Q.setValueAtTime(1.5, audioContext.currentTime);
+                
+                source.buffer = buffer;
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(clap.volume, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + clap.duration);
+                
+                source.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                source.start();
+                
+            }, clap.delay * 1000);
+        });
+        
+        console.log('👏👏 강력한 추가 박수!');
+        
+    } catch (error) {
+        console.error('추가 박수 재생 실패:', error);
+    }
+}
+
+// 환호성 효과 재생
+function playCheersSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 더 강력한 "와아아!" 환호성 패턴 (여러 명이 환호하는 효과)
+        const cheersPattern = [
+            // 첫 번째 파도
+            { delay: 0.2, duration: 1.0, startFreq: 200, endFreq: 450, volume: 0.3 },
+            { delay: 0.4, duration: 0.8, startFreq: 180, endFreq: 400, volume: 0.25 },
+            { delay: 0.6, duration: 1.2, startFreq: 220, endFreq: 500, volume: 0.35 },
+            { delay: 0.8, duration: 0.9, startFreq: 190, endFreq: 420, volume: 0.28 },
+            
+            // 두 번째 파도 (더 높고 강하게)
+            { delay: 1.3, duration: 1.5, startFreq: 250, endFreq: 600, volume: 0.4 },
+            { delay: 1.5, duration: 1.2, startFreq: 230, endFreq: 550, volume: 0.35 },
+            { delay: 1.7, duration: 1.8, startFreq: 280, endFreq: 650, volume: 0.45 },
+            { delay: 1.9, duration: 1.3, startFreq: 260, endFreq: 580, volume: 0.38 },
+            
+            // 세 번째 파도 (피날레)
+            { delay: 2.8, duration: 2.0, startFreq: 300, endFreq: 700, volume: 0.5 },
+            { delay: 3.0, duration: 1.8, startFreq: 280, endFreq: 680, volume: 0.45 },
+            { delay: 3.2, duration: 2.2, startFreq: 320, endFreq: 750, volume: 0.55 },
+        ];
+        
+        cheersPattern.forEach((cheer) => {
+                    setTimeout(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                // 사람 목소리 같은 파형
+                oscillator.type = 'sawtooth';
+                
+                // 주파수가 올라가는 효과 (환호성의 특징)
+                oscillator.frequency.setValueAtTime(cheer.startFreq, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(cheer.endFreq, audioContext.currentTime + cheer.duration);
+                
+                // 목소리 같은 필터
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, audioContext.currentTime);
+                filter.Q.setValueAtTime(1, audioContext.currentTime);
+                
+                // 볼륨 조절 (서서히 커졌다 작아지기)
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(cheer.volume, audioContext.currentTime + 0.1);
+                gainNode.gain.linearRampToValueAtTime(cheer.volume * 0.8, audioContext.currentTime + cheer.duration * 0.7);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + cheer.duration);
+                
+                // 오디오 노드 연결
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + cheer.duration);
+                
+            }, cheer.delay * 1000);
+        });
+        
+        console.log('🎉 환호성 재생!');
+        
+    } catch (error) {
+        console.error('환호성 재생 실패:', error);
+    }
+}
+
+// 백업 사운드 재생 함수 (사용 안 함 - 제거됨)
 
 // 축하 효과 정리 함수 (메모리 관리)
 function clearCelebrationEffects() {
-    const celebrationElements = document.querySelectorAll('.celebration-balloon, .celebration-flower'); // 축하 효과 요소들 선택
+    const celebrationElements = document.querySelectorAll('.celebration-firework, .celebration-sparkle'); // 축하 효과 요소들 선택
     celebrationElements.forEach(el => { // 각 요소에 대해
         if (el.parentNode) { // 요소가 DOM에 있으면
             el.parentNode.removeChild(el); // 요소 제거

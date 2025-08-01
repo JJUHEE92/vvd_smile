@@ -31,14 +31,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            justify-content: flex-start;
+            height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             background-attachment: fixed;
             overflow-x: hidden;
+            overflow-y: auto;
             width: 100%;
             padding: 10px;
             position: relative;
+            box-sizing: border-box;
         }
 
         body::before {
@@ -61,6 +63,11 @@
             width: 100%;
             max-width: 640px;
             margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 0;
         }
         
         #video-wrapper {
@@ -75,6 +82,8 @@
                         inset 0 0 0 1px rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.2);
+            flex: 1;
+            min-height: 0;
         }
         
         #video {
@@ -114,6 +123,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         #score-box::before {
@@ -180,47 +190,113 @@
             font-size: 40px;
         }
         
+        /* 아이패드/태블릿 반응형 스타일 */
+        @media (min-width: 481px) and (max-width: 1024px) {
+            body {
+                padding: 8px;
+                height: 100vh;
+                justify-content: flex-start;
+            }
+            
+            .page-title {
+                margin: 10px 0 8px;
+                gap: 12px;
+            }
+            
+            .page-title span.title-text {
+                font-size: 28px;
+            }
+            
+            .emoji {
+                font-size: 26px;
+            }
+            
+            #container {
+                max-width: 500px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            #video-wrapper {
+                padding-top: 70%;
+                flex: 1;
+                max-height: 60vh;
+            }
+            
+            #score-box {
+                padding: 15px;
+                margin-top: 15px;
+                flex-shrink: 0;
+            }
+            
+            #score-value {
+                font-size: 55px;
+            }
+            
+            #message {
+                font-size: 20px;
+            }
+            
+            .quote-text {
+                font-size: 28px;
+                top: 15px;
+                left: 15px;
+            }
+        }
+
         /* 모바일 반응형 스타일 */
         @media (max-width: 480px) {
             body {
                 padding: 5px;
-            }
-            
-            #video-wrapper {
-                padding-top: 100%; /* 1:1 비율로 변경 */
-            }
-            
-            #score-box {
-                font-size: 50px;
-                padding: 10px;
-            }
-            
-            #score-value {
-                font-size: 50px;
-            }
-            
-            #message {
-                font-size: 22px;
-            }
-            
-            .quote-text {
-                font-size: 22px;
-                top: 15px;
-                left: 15px;
+                height: 100vh;
+                justify-content: flex-start;
             }
             
             .page-title {
-                margin: 40px 0 15px;
+                margin: 10px 0 8px;
                 gap: 8px;
                 padding: 0 10px;
             }
             
             .page-title span.title-text {
-                font-size: 30px; /* 48px의 50% */
+                font-size: 24px;
             }
 
             .emoji {
-                font-size: 24px;
+                font-size: 22px;
+            }
+            
+            #container {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            #video-wrapper {
+                padding-top: 85%;
+                flex: 1;
+                max-height: 65vh;
+            }
+            
+            #score-box {
+                padding: 10px;
+                margin-top: 10px;
+                flex-shrink: 0;
+            }
+            
+            #score-value {
+                font-size: 45px;
+            }
+            
+            #message {
+                font-size: 18px;
+            }
+            
+            .quote-text {
+                font-size: 20px;
+                top: 12px;
+                left: 12px;
             }
         }
 
@@ -230,10 +306,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            margin: 40px 0 20px;
+            gap: 15px;
+            margin: 15px 0 10px;
             padding: 0 15px;
-            box-sizing: border-box;/*내가 width로 지정한 값이 최종 요소의 전체 너비가 되게 해줘*/
+            box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         .page-title span.title-text {
@@ -265,6 +342,11 @@
 
         #main-content {
             width: 100%;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
         }
 
         #retry-camera-button {
@@ -513,6 +595,56 @@
         @keyframes prize-subtitle-glow {
             0% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
             100% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* 아이패드에서 메시지 크기 조정 */
+        @media (min-width: 481px) and (max-width: 1024px) {
+            .prize-content {
+                padding: 50px 60px;
+                margin: 30px;
+            }
+            
+            .prize-icon {
+                margin-bottom: 20px;
+            }
+
+            .soda-can {
+                width: 70px;
+                height: 105px;
+                transform: scale(0.9);
+            }
+
+            .can-top {
+                width: 70px;
+                height: 11px;
+            }
+
+            .can-body {
+                width: 66px;
+                height: 84px;
+            }
+
+            .can-bottom {
+                width: 70px;
+                height: 11px;
+            }
+
+            .brand-text {
+                font-size: 13px;
+            }
+
+            .sub-text {
+                font-size: 9px;
+            }
+            
+            .prize-text {
+                font-size: 60px;
+                letter-spacing: 2px;
+            }
+            
+            .prize-subtitle {
+                font-size: 28px;
+            }
         }
 
         /* 모바일에서 메시지 크기 조정 */
